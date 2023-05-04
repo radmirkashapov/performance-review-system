@@ -1,0 +1,19 @@
+build:
+  maxIssues: 5
+
+style:
+  MaxLineLength:
+    maxLineLength: 150
+    excludeCommentStatements: true
+  WildcardImport:
+    active: false
+  UnnecessaryAbstractClass:
+    active: false
+  ReturnCount:
+    active: false
+
+complexity:
+  LongParameterList:
+    functionThreshold: 7
+    ignoreDataClasses: true
+    constructorThreshold: 10
