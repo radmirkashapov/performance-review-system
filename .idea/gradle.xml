@@ -8,6 +8,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/base" />
+            <option value="$PROJECT_DIR$/security" />
+            <option value="$PROJECT_DIR$/security/auth" />
+            <option value="$PROJECT_DIR$/security/core" />
+            <option value="$PROJECT_DIR$/security/oauth" />
+            <option value="$PROJECT_DIR$/security/user" />
             <option value="$PROJECT_DIR$/service" />
             <option value="$PROJECT_DIR$/yandex" />
             <option value="$PROJECT_DIR$/yandex/yandex-oauth" />

@@ -1,11 +1,16 @@
 package ru.ya.oauth2.api.client
 
+import dev.rkashapov.base.security.SecurityConstants.BASIC_TOKEN_PREFIX
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
+import org.springframework.web.util.UriBuilder
 import org.springframework.web.util.UriComponentsBuilder
+import reactor.core.publisher.Mono
+import ru.ya.oauth2.api.model.YandexOAuth2TokenRes
 import ru.ya.oauth2.configuration.YandexOAuth2ConfigurationProperties
 import java.util.Base64
 import java.util.UUID
@@ -33,27 +38,60 @@ class YandexOAuth2Client(
 
     }
 
-    fun swapCodeToToken(code: String, deviceId: UUID, deviceName: String) {
-        yandexWebSecurityOAuth2Client
+    fun swapCodeToToken(code: String, deviceId: UUID, deviceName: String): Mono<YandexOAuth2TokenRes> {
+        return makeTokenRequest {
+            initSwapCodeToTokenRequestBuilder(it, code, deviceId, deviceName)
+        }
+    }
+
+    fun refreshTokens(refreshToken: String): Mono<YandexOAuth2TokenRes> {
+        return makeTokenRequest {
+            initRefreshTokenRequestBuilder(it, refreshToken)
+        }
+    }
+
+    private fun makeTokenRequest(initUriBuilder: (UriBuilder) -> Unit): Mono<YandexOAuth2TokenRes> {
+        return yandexWebSecurityOAuth2Client
             .post()
             .uri {
-                it
-                    .path("/token")
-                    .queryParam("grant_type", "authorization_code")
-                    .queryParam("code", code)
-                    .queryParam("device_id", deviceId)
-                    .queryParam("device_name", deviceName)
-                    .build()
+                initUriBuilder(it)
+                it.build()
             }
             .contentType(APPLICATION_FORM_URLENCODED)
             .accept(APPLICATION_JSON)
             .header(
                 AUTHORIZATION,
-                "Basic ${
+                "$BASIC_TOKEN_PREFIX ${
                     Base64.getEncoder()
                         .encodeToString("${properties.clientId}:${properties.clientSecret}".encodeToByteArray())
                 }"
             )
+            .retrieve()
+            .bodyToMono()
+    }
+
+    private fun initSwapCodeToTokenRequestBuilder(
+        uriBuilder: UriBuilder,
+        code: String,
+        deviceId: UUID,
+        deviceName: String
+    ): UriBuilder {
+        return uriBuilder
+            .path("/token")
+            .queryParam("grant_type", "authorization_code")
+            .queryParam("code", code)
+            .queryParam("device_id", deviceId)
+            .queryParam("device_name", deviceName)
+    }
+
+    private fun initRefreshTokenRequestBuilder(
+        uriBuilder: UriBuilder,
+        refreshToken: String
+    ): UriBuilder {
+        return uriBuilder
+            .path("/token")
+            .queryParam("grant_type", "refresh_token")
+            .queryParam("refresh_token", refreshToken)
     }
 
 }

@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
-    api(libs.bundles.openapi.client)
-    api(projects.base)
+    api(libs.bundles.spring.web)
+    api(libs.bundles.spring.jpa)
+    api(projects.security.core)
 }

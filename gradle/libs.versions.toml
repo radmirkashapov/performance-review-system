@@ -89,6 +89,7 @@ spring-test = [
     "testcontainers-postgresql",
     "kotest-extensions-testcontainers"
 ]
+logging = ["kotlin-logging"]
 kotlinx-coroutines = ["kotlinx-coroutines-slf4j", "kotlinx-coroutines-reactor"]
 openapi-models = ["jackson-annotations"]
 openapi-client = [
