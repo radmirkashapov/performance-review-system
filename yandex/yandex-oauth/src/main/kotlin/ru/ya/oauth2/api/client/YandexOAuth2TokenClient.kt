@@ -16,12 +16,12 @@ import java.util.Base64
 import java.util.UUID
 
 @Component
-class YandexOAuth2Client(
+class YandexOAuth2TokenClient(
     private val properties: YandexOAuth2ConfigurationProperties,
-    private val yandexWebSecurityOAuth2Client: WebClient
+    private val yandexSecurityOAuth2WebClient: WebClient
 ) {
 
-    fun buildUrlForUser(deviceId: UUID, deviceName: String, stateId: UUID): String {
+    fun buildUrlForUser(deviceId: UUID, deviceName: String, stateId: String): String {
         return UriComponentsBuilder
             .fromHttpUrl("https://oauth.yandex.ru/authorize?response_type=code")
             .apply {
@@ -31,7 +31,7 @@ class YandexOAuth2Client(
                 queryParam("redirect_uri", properties.redirectUri)
                 queryParam("scope", properties.scope)
                 queryParam("force_confirm", true)
-                queryParam("state", stateId)
+                queryParam("state", stateId) // FIXME check stateId
             }
             .build()
             .toUriString()
@@ -51,7 +51,7 @@ class YandexOAuth2Client(
     }
 
     private fun makeTokenRequest(initUriBuilder: (UriBuilder) -> Unit): Mono<YandexOAuth2TokenRes> {
-        return yandexWebSecurityOAuth2Client
+        return yandexSecurityOAuth2WebClient
             .post()
             .uri {
                 initUriBuilder(it)
@@ -59,13 +59,6 @@ class YandexOAuth2Client(
             }
             .contentType(APPLICATION_FORM_URLENCODED)
             .accept(APPLICATION_JSON)
-            .header(
-                AUTHORIZATION,
-                "$BASIC_TOKEN_PREFIX ${
-                    Base64.getEncoder()
-                        .encodeToString("${properties.clientId}:${properties.clientSecret}".encodeToByteArray())
-                }"
-            )
             .retrieve()
             .bodyToMono()
     }

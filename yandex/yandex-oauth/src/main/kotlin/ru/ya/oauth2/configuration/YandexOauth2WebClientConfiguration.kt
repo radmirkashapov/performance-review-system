@@ -9,10 +9,18 @@ class YandexOauth2WebClientConfiguration {
 
 
     @Bean
-    fun yandexWebSecurityOAuth2Client(): WebClient {
+    fun yandexSecurityOAuth2WebClient(): WebClient {
         return WebClient
             .builder()
-            .baseUrl("https://oauth.yandex.ru") // TODO to prop file
+            .baseUrl("https://oauth.yandex.ru") // TODO to config file
+            .build()
+    }
+
+    @Bean
+    fun yandexOAuth2LoginInfoWebClient(): WebClient {
+        return WebClient
+            .builder()
+            .baseUrl("https://login.yandex.ru") // TODO to config file
             .build()
     }
 

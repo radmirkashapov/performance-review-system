@@ -5,4 +5,8 @@ plugins {
 
 dependencies {
     api(libs.bundles.spring.web)
+    api(libs.bundles.jjwt)
+    api(libs.bundles.logging)
+    api(libs.bundles.spring.swagger)
+    api(projects.base)
 }

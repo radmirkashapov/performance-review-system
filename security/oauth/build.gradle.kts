@@ -7,4 +7,5 @@ dependencies {
     api(libs.bundles.spring.web)
     api(libs.bundles.spring.jpa)
     api(projects.security.user)
+    api(projects.yandex.yandexOauth)
 }
