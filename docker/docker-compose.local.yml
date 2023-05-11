@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  db:
+    image: "bitnami/postgresql:14.5.0"  # https://hub.docker.com/r/bitnami/postgresql
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRESQL_USERNAME: "postgres"
+      POSTGRESQL_PASSWORD: "postgres"
+      POSTGRESQL_DATABASE: "prs"
+      POSTGRESQL_POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - ./prs/db:/bitnami/postgresql
+
+#  hazelcast:
+#    image: hazelcast/hazelcast:5.2.1
+#    ports:
+#      - "5701:5701"
+#  management-center:
+#    image: hazelcast/management-center:5.2.1
+#    ports:
+#      - "8086:8080"
+#    environment:
+#      - MC_DEFAULT_CLUSTER=dev
+#      - MC_DEFAULT_CLUSTER_MEMBERS=hazelcast
+
+volumes:
+  db:
+
+
+

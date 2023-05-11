@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.postgresql)
     api(libs.bundles.spring.web)
     api(libs.bundles.jjwt)
     api(libs.bundles.logging)

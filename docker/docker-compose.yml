@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  app:
+    image: $REGISTRY/$REPOSITORY/vr/vr:${BUILD_SHA}
+    env_file:
+      - /opt/prs/app/app.env
+    ports:
+      - 8080:8080
+      - 3330:3330
+    networks:
+      - prs
+
+networks:
+  prs:
+    name: prs
+    external: true

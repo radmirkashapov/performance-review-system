@@ -1,23 +1,22 @@
 package dev.rkashapov.security.auth.api.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dev.rkashapov.base.logging.CustomHeaders
 import dev.rkashapov.base.logging.MdcKey
 import dev.rkashapov.base.logging.withLoggingContext
+import dev.rkashapov.security.auth.api.model.OAuthLinkModel
 import dev.rkashapov.security.oauth.api.model.OAuthProvider
+import dev.rkashapov.security.oauth.api.model.YandexOAuthCodeModel
 import dev.rkashapov.security.oauth.service.YandexOAuthService
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.validation.Valid
 import mu.KLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import ru.chermenin.ua.UserAgent
-import java.util.UUID
+import java.util.*
 
 @RestController
 @RequestMapping("/api/v1/oauth")
@@ -26,38 +25,39 @@ class OAuthController(
     private val yandexOAuthService: YandexOAuthService
 ) : KLogging() {
 
-    @PostMapping("/link")
+    @GetMapping("/link")
     fun getOAuth2Link(
         @RequestParam(defaultValue = "YANDEX") provider: OAuthProvider,
-        @RequestHeader(name = "X_REQUEST_ID", required = true) requestId: UUID,
+        @RequestHeader(name = CustomHeaders.X_DEVICE_ID, required = true) deviceId: String,
+        @RequestHeader(name = CustomHeaders.X_REQUEST_ID, required = true) requestId: UUID,
         request: HttpServletRequest
-    ): ResponseEntity<String> {
-        return withLoggingContext(MdcKey.REQUEST_ID to requestId) {
+    ): ResponseEntity<OAuthLinkModel> {
+        return withLoggingContext(MdcKey.REQUEST_ID to requestId, MdcKey.DEVICE_ID to deviceId) {
 
             logger.info { "Requested oauth2 link for $provider" }
 
             val userAgentValue = request.getHeader(HttpHeaders.USER_AGENT)
-                ?: return ResponseEntity.badRequest().body(
-                    objectMapper.writeValueAsString(mapOf("message" to "User-Agent header must be provided"))
+                ?: return ResponseEntity.badRequest().build()
+
+            when (provider) {
+                OAuthProvider.YANDEX -> yandexOAuthService.getOAuth2Link(
+                    UserAgent.parse(userAgentValue).toString(),
+                    deviceId,
+                    requestId
                 )
 
-            return when (provider) {
-                OAuthProvider.YANDEX -> yandexOAuthService.getOAuth2Link(UserAgent.parse(userAgentValue).toString())
-                else -> return ResponseEntity.badRequest().body(
-                    objectMapper.writeValueAsString(mapOf("message" to "Unknown oauth provider: $provider"))
-                )
+                else -> return ResponseEntity.badRequest().build()
             }.let {
-                ResponseEntity.ok(it)
+                ResponseEntity.ok(OAuthLinkModel(link = it))
             }
         }
     }
 
     @Transactional
-    @GetMapping("/yandex/code-callback")
-    fun processYandexCodeCallback() {
-
+    @PostMapping("/yandex/code-login-callback")
+    fun processYandexCodeCallback(@Valid @RequestBody body: YandexOAuthCodeModel) {
+        throw IllegalStateException("Add Spring Security to handle authentication")
     }
-
 
 
 }

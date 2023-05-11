@@ -6,6 +6,7 @@ plugins {
 dependencies {
     api(libs.bundles.spring.web)
     api(libs.bundles.spring.jpa)
+    api(projects.base.caching)
     api(projects.security.user)
     api(projects.yandex.yandexOauth)
 }

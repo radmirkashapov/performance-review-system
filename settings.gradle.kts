@@ -19,7 +19,8 @@ include(
     ":security:user"
 )
 include(
-    ":base"
+    ":base",
+    ":base:caching"
 )
 include(
     ":service"

@@ -1,24 +1,28 @@
 package dev.rkashapov.security.oauth.service
 
+import com.hazelcast.core.HazelcastInstance
+import com.hazelcast.map.IMap
+import dev.rkashapov.base.caching.CollectionName
 import dev.rkashapov.base.logging.MdcKey
 import dev.rkashapov.base.logging.withLoggingContext
-import dev.rkashapov.base.security.AESService
+import dev.rkashapov.security.core.service.JWTService
+import dev.rkashapov.security.oauth.api.model.OAuthStateModel
 import dev.rkashapov.security.oauth.configuration.OAuthConfigurationProperties
 import dev.rkashapov.security.oauth.entity.OAuthTokenEntity
+import dev.rkashapov.security.oauth.exception.InvalidStateException
 import dev.rkashapov.security.oauth.repository.OAuthTokenRepository
 import dev.rkashapov.user.entity.UserEntity
 import dev.rkashapov.user.repository.UserRepository
-import korlibs.crypto.AES
+import io.jsonwebtoken.security.Keys
 import mu.KLogging
-import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.base64.Base64
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClientException
 import ru.ya.oauth2.api.client.YandexOAuth2LoginInfoClient
 import ru.ya.oauth2.api.client.YandexOAuth2TokenClient
-import java.time.LocalDateTime
-import java.util.UUID
-import kotlin.math.log
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
 
 @Service
 class YandexOAuthService(
@@ -26,35 +30,40 @@ class YandexOAuthService(
     private val oAuthTokenRepository: OAuthTokenRepository,
     private val yandexOAuth2LoginInfoClient: YandexOAuth2LoginInfoClient,
     private val userRepository: UserRepository,
-    private val aesService: AESService,
-    private val oAuthConfigurationProperties: OAuthConfigurationProperties
+    private val jwtService: JWTService,
+    private val oAuthConfigurationProperties: OAuthConfigurationProperties,
+    private val hazelcastInstance: HazelcastInstance
 ) : KLogging() {
 
-    private val cipherKey = Base64.decode(oAuthConfigurationProperties.stateKey)
+    private val oauthStates: IMap<String, OAuthStateModel> = hazelcastInstance.getMap(CollectionName.oauthStatesMap)
+    private val stateJWTSigningKey =
+        checkNotNull(Keys.hmacShaKeyFor(oAuthConfigurationProperties.stateKey.toByteArray()))
 
     @Transactional
-    fun getOAuth2Link(deviceName: String, requestId: UUID): String {
-        return withLoggingContext(MdcKey.REQUEST_ID to requestId) {
+    fun getOAuth2Link(deviceName: String, deviceId: String, requestId: UUID): String {
+        return withLoggingContext(MdcKey.REQUEST_ID to requestId, MdcKey.DEVICE_ID to deviceId) {
             logger.info { "Requested oauth2 link for YANDEX" }
 
-            val deviceId = UUID.randomUUID()
+            val now = Instant.now()
 
-            val state = oAuthTokenRepository.save(OAuthTokenEntity(deviceId = deviceId, deviceName = deviceName))
+            val stateValue = jwtService
+                .generateToken(
+                    subject = deviceId,
+                    issuer = oAuthConfigurationProperties.issuer,
+                    issuedAt = Instant.now(),
+                    expiresAt = now.plus(5L, ChronoUnit.MINUTES), // short-lived token
+                    signingKey = stateJWTSigningKey,
+                    requestId = requestId
+                )
 
-            logger.trace { "stateId: ${state.id}" }
+            oauthStates.putIfAbsent(stateValue, OAuthStateModel(deviceName, deviceId))
 
-            val base64StateIdEncrypted =
-                Base64
-                    .decode(state.id.toString())
-                    .let {
-                        val encrypted = aesService.encrypt(it, cipherKey)
-                        Base64.toBase64String(encrypted)
-                    }
+            logger.info { "Saved oauth token meta to hazelcast" }
 
             withLoggingContext() {
                 yandexOAuth2TokenClient
                     .buildUrlForUser(
-                        stateId = base64StateIdEncrypted,
+                        state = stateValue,
                         deviceName = deviceName,
                         deviceId = deviceId
                     )
@@ -63,67 +72,84 @@ class YandexOAuthService(
     }
 
     @Transactional(rollbackFor = [WebClientException::class])
-    fun processYandexCodeCallback(base64StateIdEncrypted: String, code: String, requestId: UUID) {
+    fun processYandexCodeCallback(stateId: String, code: String, requestId: UUID): UserEntity {
         withLoggingContext(MdcKey.REQUEST_ID to requestId) {
 
             logger.info { "Processing yandex code callback" }
 
-            val stateId = Base64
-                .decode(base64StateIdEncrypted)
-                .let {
-                    val decrypted = aesService.decrypt(it, cipherKey)
-                    UUID.fromString(Base64.decode(decrypted).contentToString())
-                }
+            jwtService.validateAndParseToken(
+                token = stateId,
+                key = stateJWTSigningKey,
+                requestId = requestId
+            )
 
-            withLoggingContext(MdcKey.USER_ID to stateId) {
-                val state = oAuthTokenRepository.findById(stateId).orElseThrow()
+            val tokenMeta = getOAuthTokenMeta(stateId)
 
-                logger.trace { "state: $state" }
-                val now = LocalDateTime.now()
+            logger.trace { "tokenMeta: $tokenMeta" }
 
-                if (!state.isInitialized()) {
 
-                    logger.info { "OAuth token haven't initialized yet or expired. Processing..." }
+            return withLoggingContext(MdcKey.DEVICE_ID to tokenMeta.deviceId) {
+                var currentOAuthToken = oAuthTokenRepository.findFirstByDeviceId(tokenMeta.deviceId)
+                val now = Instant.now()
+
+                if (currentOAuthToken == null) {
+
+                    logger.info { "OAuth token haven't initialized yet. Processing..." }
 
                     val token = yandexOAuth2TokenClient
-                        .swapCodeToToken(code = code, deviceId = state.deviceId, deviceName = state.deviceName)
+                        .swapCodeToToken(code = code, deviceId = tokenMeta.deviceId, deviceName = tokenMeta.deviceName)
                         .block()
 
                     requireNotNull(token)
 
-                    state.apply {
-                        accessToken = token.accessToken
-                        refreshToken = token.refreshToken
-                        expiresIn = now.plusSeconds(token.expiresInSeconds).minusMinutes(1L)
-                    }
+                    currentOAuthToken = OAuthTokenEntity(
+                        deviceId = tokenMeta.deviceId,
+                        deviceName = tokenMeta.deviceName,
+                        accessToken = token.accessToken,
+                        refreshToken = token.refreshToken,
+                        expiresIn = now.plusSeconds(token.expiresInSeconds).minusSeconds(60L)
+                    )
                 }
 
-                val user = upsertUser(state, state.accessToken!!)
-                state.owner = user
+                val user = upsertUser(currentOAuthToken.accessToken)
+                currentOAuthToken.owner = user
 
-                oAuthTokenRepository.saveAndFlush(state)
+                oAuthTokenRepository.saveAndFlush(currentOAuthToken)
+
+                oauthStates.delete(stateId)
+
+                currentOAuthToken.owner!!
             }
         }
     }
 
-    private fun upsertUser(state: OAuthTokenEntity, accessToken: String): UserEntity { // code smell
+    private fun upsertUser(accessToken: String): UserEntity { // code smell
         val loginInfo = yandexOAuth2LoginInfoClient
             .getLoginInfo(accessToken)
             .block()
 
         requireNotNull(loginInfo)
 
-        val user = state.owner.takeIf { state.isInitialized() } ?: UserEntity(
-            email = loginInfo.defaultEmail,
-            realName = loginInfo.realName
-        )
+        var userCreated = false
 
-        return userRepository.saveAndFlush(
-            user.apply {
-                this.avatarUrl = loginInfo.avatarUrl
-            }
-        ).also {
-            logger.info { "User ${if (state.isInitialized()) "updated" else "created"}" }
+        val user = userRepository.findFirstByEmail(loginInfo.defaultEmail)?.apply {
+            avatarUrl = loginInfo.avatarUrl
+            realName = loginInfo.realName
+        } ?: run {
+            userCreated = true
+
+            UserEntity(
+                email = loginInfo.defaultEmail,
+                realName = loginInfo.realName,
+                avatarUrl = loginInfo.avatarUrl
+            )
+        }
+
+        return userRepository.saveAndFlush(user).also {
+            logger.info { "User ${if (userCreated) "created" else "updated"}" }
         }
     }
+
+    private fun getOAuthTokenMeta(key: String) =
+        oauthStates[key] ?: throw InvalidStateException("Provided stateId is invalid. Forbidden")
 }

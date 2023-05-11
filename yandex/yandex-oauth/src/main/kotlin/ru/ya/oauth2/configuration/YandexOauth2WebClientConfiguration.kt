@@ -3,9 +3,12 @@ package ru.ya.oauth2.configuration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient
+import ru.ya.oauth2.api.client.interceptor.YandexOAuthAppBasicInterceptor
 
 @Configuration
-class YandexOauth2WebClientConfiguration {
+class YandexOauth2WebClientConfiguration(
+    private val yandexOAuthAppBasicInterceptor: YandexOAuthAppBasicInterceptor
+) {
 
 
     @Bean
@@ -13,6 +16,7 @@ class YandexOauth2WebClientConfiguration {
         return WebClient
             .builder()
             .baseUrl("https://oauth.yandex.ru") // TODO to config file
+            .filter(yandexOAuthAppBasicInterceptor)
             .build()
     }
 

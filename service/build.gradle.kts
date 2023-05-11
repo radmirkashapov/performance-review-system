@@ -20,6 +20,8 @@ dependencies {
     api(libs.bundles.spring.jpa)
     api(libs.bundles.spring.web)
 
+    api(projects.security.auth)
+
     testImplementation(libs.bundles.test.base)
     testImplementation(libs.bundles.spring.test)
 }

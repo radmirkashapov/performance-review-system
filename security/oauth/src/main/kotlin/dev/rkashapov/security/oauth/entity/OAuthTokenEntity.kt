@@ -7,7 +7,6 @@ import org.hibernate.annotations.ColumnTransformer
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 
 @Entity
@@ -18,47 +17,48 @@ class OAuthTokenEntity(
     var id: UUID? = null,
 
     @NotNull
-    @Column(name = "device_id")
-    val deviceId: UUID,
+    @Column(name = "device_id", nullable = false)
+    val deviceId: String,
 
-    @Column(name = "device_name")
+    @Column(name = "device_name", columnDefinition = "bytea", nullable = false)
     @ColumnTransformer(
         forColumn = "device_name",
-        write = "pgp_sym_encrypt(?, current_setting('encrypt.personal_info_key'))",
-        read = "pgp_sym_decrypt(email, current_setting('encrypt.personal_info_key'))"
+        write = "pgp_sym_encrypt(?, current_setting('encrypt.personalInfo_key'))",
+        read = "pgp_sym_decrypt(device_name, current_setting('encrypt.personalInfo_key'))"
     )
     val deviceName: String,
-) {
+
     @ColumnTransformer(
         forColumn = "access_token",
-        write = "pgp_sym_encrypt(?, current_setting('encrypt.access_token_key'))",
-        read = "pgp_sym_decrypt(access_token, current_setting('encrypt.access_token_key'))"
+        write = "pgp_sym_encrypt(?, current_setting('encrypt.accessToken_key'))",
+        read = "pgp_sym_decrypt(access_token, current_setting('encrypt.accessToken_key'))"
     )
-    @Column(name = "access_token")
-    var accessToken: String? = null
+    @Column(name = "access_token", columnDefinition = "bytea", nullable = false)
+    var accessToken: String,
 
     @ColumnTransformer(
         forColumn = "refresh_token",
-        write = "pgp_sym_encrypt(?, current_setting('encrypt.refresh_token_key'))",
-        read = "pgp_sym_decrypt(refresh_token, current_setting('encrypt.refresh_token_key'))"
+        write = "pgp_sym_encrypt(?, current_setting('encrypt.refreshToken_key'))",
+        read = "pgp_sym_decrypt(refresh_token, current_setting('encrypt.refreshToken_key'))"
     )
-    @Column(name = "refresh_token")
-    var refreshToken: String? = null
+    @Column(name = "refresh_token", columnDefinition = "bytea", nullable = false)
+    var refreshToken: String,
 
-    @Column(name = "created_at")
+    // for yandex expiration time equals for both tokens
+    @Column(name = "expires_in", nullable = false)
+    var expiresIn: Instant
+) {
+
+    @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     val createdAt: Instant = Instant.now()
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     var updatedAt: Instant? = null
 
-    // for yandex expiration time equals for both tokens
-    @Transient
-    var expiresIn: LocalDateTime? = null
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @JoinColumn(name = "owner_id", nullable = false)
     var owner: UserEntity? = null
 
     fun isInitialized() = owner != null

@@ -27,6 +27,7 @@ hibernate-validator = "8.0.0.Final"
 kotlin-user-agents = "0.2.2"
 commons-collections4 = "4.4"
 krypto = "4.0.0-rc5"
+hazelcast-all = "4.2.7"
 
 [libraries]
 spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
@@ -42,6 +43,7 @@ spring-boot-configuration-processor = { group = "org.springframework.boot", name
 commons-codec = { group = "commons-codec", name = "commons-codec" }
 postgresql = { group = "org.postgresql", name = "postgresql" }
 liquibase = { group = "org.liquibase", name = "liquibase-core" }
+hazelcast = { group = "com.hazelcast", name = "hazelcast-all", version.ref = "hazelcast-all" }
 jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin" }
 kotlin-mockito = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "kotlin-mockito" }
 kotlin-logging = { group = "io.github.microutils", name = "kotlin-logging-jvm", version.ref = "kotlin-logging" }
@@ -78,7 +80,7 @@ krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto-jvm", version.ref
 [bundles]
 spring-jpa = ["postgresql", "liquibase", "spring-boot-starter-data-jpa", "hibernate-utils", "hibernate-validator"]
 spring-web = [
-    "spring-boot-starter-security", "spring-boot-starter-web", "spring-boot-starter-webflux", "jackson-kotlin", "spring-boot-starter-actuator",
+    "spring-boot-starter-security", "spring-boot-starter-web", "spring-boot-starter-webflux", "spring-boot-configuration-processor", "jackson-kotlin", "spring-boot-starter-actuator",
     "jackson-kotlin", "kotlinx-datetime"
 ]
 spring-aspects = ["spring-aspects"]

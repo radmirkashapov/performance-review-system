@@ -42,3 +42,10 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Env ###
+!example.env
+local.env
+
+### Docker ###
+docker/prs/db
