@@ -1,9 +1,0 @@
-package ru.ya.oauth2
-
-import org.springframework.boot.SpringBootConfiguration
-import org.springframework.boot.context.properties.EnableConfigurationProperties
-import ru.ya.oauth2.configuration.YandexOAuth2ConfigurationProperties
-
-@SpringBootConfiguration
-@EnableConfigurationProperties(YandexOAuth2ConfigurationProperties::class)
-class YandexOAuth2AutoConfiguration

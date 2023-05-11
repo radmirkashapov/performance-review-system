@@ -70,6 +70,10 @@ subprojects {
                         "javax.xml.bind" -> when (requested.name) {
                             "jaxb-api" -> useVersion(rootProject.libs.versions.jaxb.api.get())
                         }
+
+                        "org.apache.commons" -> when(requested.name) {
+                            "commons-collections4" -> useVersion(rootProject.libs.versions.commons.collections4.get())
+                        }
                     }
                 }
             }

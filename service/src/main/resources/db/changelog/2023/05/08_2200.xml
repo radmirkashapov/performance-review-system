@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-08_2200"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-08_2200.xml">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="oauth_token"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "oauth_token"
+            (
+                "id"            UUID PRIMARY KEY             NOT NULL DEFAULT uuid_generate_v4(),
+                "device_id"     TEXT                         NOT NULL,
+                "device_name"   bytea                        NOT NULL,
+
+                "access_token"  bytea                        NOT NULL,
+                "refresh_token" bytea                        NOT NULL,
+
+                "expires_in"    TIMESTAMP                    NOT NULL,
+
+                "created_at"    TIMESTAMP                    NOT NULL DEFAULT NOW(),
+                "updated_at"    TIMESTAMP                    NOT NULL DEFAULT NOW(),
+                "owner_id"      UUID REFERENCES "users" (id) NOT NULL,
+                UNIQUE ("device_id", "owner_id")
+            );
+
+            CREATE INDEX "oauth_token-device_id-idx" ON "oauth_token" (device_id);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

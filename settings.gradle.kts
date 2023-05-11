@@ -7,11 +7,20 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    
 }
 
 include(
     ":yandex:yandex-oauth"
+)
+include(
+    ":security:core",
+    ":security:oauth",
+    ":security:auth",
+    ":security:user"
+)
+include(
+    ":base",
+    ":base:caching"
 )
 include(
     ":service"

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-08_2200"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-08_2000.xml">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "users"
+            (
+                "id"         UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+                "email"      citext UNIQUE    NOT NULL,
+
+                "role"       TEXT             NOT NULL,
+                "status"     TEXT             NOT NULL,
+
+                "real_name"  TEXT             NOT NULL,
+                "avatar_url" TEXT             NOT NULL,
+
+                "created_at" TIMESTAMP        NOT NULL DEFAULT NOW(),
+                "updated_at" TIMESTAMP        NOT NULL DEFAULT NOW()
+            );
+
+            CREATE INDEX "user-email-idx" ON "users" (email);
+        </sql>
+    </changeSet>
+</databaseChangeLog>
