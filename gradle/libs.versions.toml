@@ -37,7 +37,7 @@ spring-boot-starter = { group = "org.springframework.boot", name = "spring-boot-
 spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web" }
 spring-boot-starter-webflux = { group = "org.springframework.boot", name = "spring-boot-starter-webflux" }
 spring-boot-starter-security = { group = "org.springframework.boot", name = "spring-boot-starter-security" }
-#spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
+spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
 spring-boot-starter-actuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator" }
 spring-boot-configuration-processor = { group = "org.springframework.boot", name = "spring-boot-configuration-processor" }
 commons-codec = { group = "commons-codec", name = "commons-codec" }
@@ -81,7 +81,7 @@ krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto-jvm", version.ref
 spring-jpa = ["postgresql", "liquibase", "spring-boot-starter-data-jpa", "hibernate-utils", "hibernate-validator"]
 spring-web = [
     "spring-boot-starter-security", "spring-boot-starter-web", "spring-boot-starter-webflux", "spring-boot-configuration-processor", "jackson-kotlin", "spring-boot-starter-actuator",
-    "jackson-kotlin", "kotlinx-datetime"
+    "jackson-kotlin", "kotlinx-datetime", "spring-boot-starter-validation"
 ]
 spring-aspects = ["spring-aspects"]
 spring-swagger = ["springdoc-common", "springdoc-web-ui"]

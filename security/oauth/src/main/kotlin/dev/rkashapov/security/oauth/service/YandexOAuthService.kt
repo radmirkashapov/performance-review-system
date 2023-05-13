@@ -22,7 +22,6 @@ import ru.ya.oauth2.api.client.YandexOAuth2LoginInfoClient
 import ru.ya.oauth2.api.client.YandexOAuth2TokenClient
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 @Service
 class YandexOAuthService(
@@ -40,7 +39,7 @@ class YandexOAuthService(
         checkNotNull(Keys.hmacShaKeyFor(oAuthConfigurationProperties.stateKey.toByteArray()))
 
     @Transactional
-    fun getOAuth2Link(deviceName: String, deviceId: String, requestId: UUID): String {
+    fun getOAuth2Link(deviceName: String, deviceId: String, requestId: String?): String {
         return withLoggingContext(MdcKey.REQUEST_ID to requestId, MdcKey.DEVICE_ID to deviceId) {
             logger.info { "Requested oauth2 link for YANDEX" }
 
@@ -72,7 +71,7 @@ class YandexOAuthService(
     }
 
     @Transactional(rollbackFor = [WebClientException::class])
-    fun processYandexCodeCallback(stateId: String, code: String, requestId: UUID): UserEntity {
+    fun processYandexCodeCallback(stateId: String, code: String, requestId: String): UserEntity {
         withLoggingContext(MdcKey.REQUEST_ID to requestId) {
 
             logger.info { "Processing yandex code callback" }

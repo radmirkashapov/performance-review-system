@@ -51,7 +51,7 @@ class YandexOAuthCodeCallbackAuthenticationFilter(
             yandexOAuthService.processYandexCodeCallback(
                 stateId = oauthCode.state,
                 code = oauthCode.code,
-                requestId = UUID.fromString(requestId)
+                requestId = requestId
             )
         } catch (e: Exception) {
             logger.error("Yandex callback processing failed", e)

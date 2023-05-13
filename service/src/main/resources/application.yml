@@ -28,7 +28,3 @@ logging:
     console: '%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger) - [%X] %msg%n'
   level:
     dev.rkashapov: trace
-
-server:
-  error:
-    include-message: always
