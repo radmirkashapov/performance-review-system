@@ -7,6 +7,7 @@ import dev.rkashapov.security.auth.handler.YandexOAuthCodeCallbackAuthentication
 import dev.rkashapov.security.auth.handler.YandexOAuthCodeCallbackAuthenticationSuccessHandler
 import dev.rkashapov.security.core.service.AuthJWTService
 import dev.rkashapov.security.oauth.service.YandexOAuthService
+import dev.rkashapov.user.service.CustomUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -18,7 +19,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutFilter
@@ -28,7 +28,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter
 @EnableMethodSecurity(prePostEnabled = true)
 @EnableGlobalAuthentication
 class WebSecurityConfiguration(
-    private val userDetailsService: UserDetailsService,
+    private val userDetailsService: CustomUserDetailsService,
     private val objectMapper: ObjectMapper,
     private val yandexOAuthService: YandexOAuthService,
     private val authJWTService: AuthJWTService,

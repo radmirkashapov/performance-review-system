@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-13_1900"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-13_1900.xml">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="skill"/>
+                <tableExists tableName="question"/>
+                <tableExists tableName="skill_question"/>
+                <tableExists tableName="skill_check_list_question"/>
+                <tableExists tableName="check_list_question"/>
+            </not>
+        </preConditions>
+        <sql>
+
+            CREATE TABLE "skill"
+            (
+                "name" VARCHAR(255) NOT NULL PRIMARY KEY
+            );
+
+
+            CREATE TABLE "question"
+            (
+                "id"              UUID         NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+                "question"        TEXT         NOT NULL,
+                "difficulty"      VARCHAR(255) NOT NULL,
+                "answer_options"  TEXT[] NOT NULL,
+                "correct_answers" TEXT[] NOT NULL
+            );
+
+            CREATE TABLE "skill_question"
+            (
+                "skill_name"  VARCHAR(255) NOT NULL REFERENCES "skill" ("name"),
+                "question_id" UUID         NOT NULL REFERENCES "question" ("id"),
+                CONSTRAINT "pk_skill_question" PRIMARY KEY ("skill_name", "question_id")
+            );
+
+
+            CREATE TABLE "check_list_question"
+            (
+                "id"             UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+                "question"       TEXT NOT NULL,
+                "answer_options" JSON NOT NULL
+            );
+
+            CREATE TABLE "skill_check_list_question"
+            (
+                "skill_name"  VARCHAR(255) NOT NULL REFERENCES "skill" ("name"),
+                "question_id" UUID         NOT NULL REFERENCES "check_list_question" ("id"),
+                CONSTRAINT "pk_skill_check_list_question" PRIMARY KEY ("skill_name", "question_id")
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

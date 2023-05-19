@@ -19,6 +19,10 @@ include(
     ":security:user"
 )
 include(
+    ":testing:testing-api",
+    ":testing:testing-spring"
+)
+include(
     ":base",
     ":base:caching"
 )

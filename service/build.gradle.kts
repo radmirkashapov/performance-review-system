@@ -17,10 +17,13 @@ sourceSets["main"].resources.srcDir(rootDir.resolve("src/main/resources"))
 sourceSets["test"].resources.srcDir(rootDir.resolve("src/test/resources"))
 
 dependencies {
+    api(libs.commons.csv)
+
     api(libs.bundles.spring.jpa)
     api(libs.bundles.spring.web)
 
     api(projects.security.auth)
+    api(projects.testing.testingSpring)
 
     testImplementation(libs.bundles.test.base)
     testImplementation(libs.bundles.spring.test)

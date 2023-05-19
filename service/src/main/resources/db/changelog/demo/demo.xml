@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-demo-data" author="demo" runAlways="false">
+        <validCheckSum>ANY</validCheckSum>
+        <sqlFile encoding="UTF-8"
+                 path="db/changelog/demo/01-demo-data-tests.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <sqlFile encoding="UTF-8"
+                 path="db/changelog/demo/02-demo-data-test-check-lists.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <sqlFile encoding="UTF-8"
+                 path="db/changelog/demo/03-demo-data-checklist-questions.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="true"
+                 stripComments="true"/>
+
+    </changeSet>
+</databaseChangeLog>

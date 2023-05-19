@@ -28,6 +28,7 @@ kotlin-user-agents = "0.2.2"
 commons-collections4 = "4.4"
 krypto = "4.0.0-rc5"
 hazelcast-all = "4.2.7"
+commons-csv = "1.10.0"
 
 [libraries]
 spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
@@ -37,7 +38,7 @@ spring-boot-starter = { group = "org.springframework.boot", name = "spring-boot-
 spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web" }
 spring-boot-starter-webflux = { group = "org.springframework.boot", name = "spring-boot-starter-webflux" }
 spring-boot-starter-security = { group = "org.springframework.boot", name = "spring-boot-starter-security" }
-#spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
+spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
 spring-boot-starter-actuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator" }
 spring-boot-configuration-processor = { group = "org.springframework.boot", name = "spring-boot-configuration-processor" }
 commons-codec = { group = "commons-codec", name = "commons-codec" }
@@ -76,12 +77,13 @@ jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt
 jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt-api" }
 kotlin-user-agents = { group = "ru.chermenin", name = "kotlin-user-agents", version.ref = "kotlin-user-agents" }
 krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto-jvm", version.ref = "krypto" }
+commons-csv = { group = "org.apache.commons", name = "commons-csv", version.ref = "commons-csv" }
 
 [bundles]
 spring-jpa = ["postgresql", "liquibase", "spring-boot-starter-data-jpa", "hibernate-utils", "hibernate-validator"]
 spring-web = [
     "spring-boot-starter-security", "spring-boot-starter-web", "spring-boot-starter-webflux", "spring-boot-configuration-processor", "jackson-kotlin", "spring-boot-starter-actuator",
-    "jackson-kotlin", "kotlinx-datetime"
+    "jackson-kotlin", "kotlinx-datetime", "spring-boot-starter-validation"
 ]
 spring-aspects = ["spring-aspects"]
 spring-swagger = ["springdoc-common", "springdoc-web-ui"]

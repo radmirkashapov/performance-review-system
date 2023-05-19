@@ -4,19 +4,19 @@ import dev.rkashapov.base.security.SecurityConstants.BEARER_TOKEN_PREFIX
 import dev.rkashapov.security.auth.configuration.WebSecurityConfiguration
 import dev.rkashapov.security.core.exception.NoAuthenticationFoundException
 import dev.rkashapov.security.core.exception.NotAuthorizedException
+import dev.rkashapov.security.core.model.CustomAuthenticationToken
 import dev.rkashapov.security.core.service.AuthJWTService
+import dev.rkashapov.user.service.CustomUserDetailsService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.filter.OncePerRequestFilter
 
 class JWTAuthorizationFilter(
-    private val userDetailsService: UserDetailsService,
+    private val userDetailsService: CustomUserDetailsService,
     private val authJWTService: AuthJWTService
 ) : OncePerRequestFilter() {
 
@@ -36,7 +36,8 @@ class JWTAuthorizationFilter(
             }
 
         try {
-            val claims = authJWTService.validateAndParseAccessToken(token = tokenWithHeader)
+            val claims =
+                authJWTService.validateAndParseAccessToken(token = tokenWithHeader.replace("$BEARER_TOKEN_PREFIX ", ""))
             logger.debug("Claims: $claims")
 
             val userId = claims.subject
@@ -44,10 +45,10 @@ class JWTAuthorizationFilter(
 
             val userDetails = userDetailsService.loadUserByUsername(userId)
 
-            val authenticationToken = UsernamePasswordAuthenticationToken(
-                userDetails.username,
-                userDetails.password,
-                userDetails.authorities
+            val authenticationToken = CustomAuthenticationToken(
+                userDetails.authorities,
+                userDetails.id,
+                true
             )
 
             authenticationToken.details = userDetails

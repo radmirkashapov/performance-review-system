@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-17_1000"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-17_1000.xml">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="test_check_list_skill"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "test_check_list_skill"
+            (
+                "skill_name"         VARCHAR(255) NOT NULL REFERENCES "skill" ("name"),
+                "test_check_list_id" UUID         NOT NULL REFERENCES "test_check_list" ("test_id"),
+                CONSTRAINT "pk_test_check_list_skill" PRIMARY KEY ("skill_name", "test_check_list_id")
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -1,22 +1,22 @@
 package dev.rkashapov.user.service
 
+import dev.rkashapov.base.model.UserStatus.BLOCKED
+import dev.rkashapov.base.model.UserStatus.DELETED
+import dev.rkashapov.security.core.model.CurrentUser
 import dev.rkashapov.user.repository.UserRepository
 import mu.KLogging
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class UserDetailsServiceImpl(
+class CustomUserDetailsService(
     private val userRepository: UserRepository
-) : KLogging(), UserDetailsService {
+) : KLogging() {
 
     @Throws(UsernameNotFoundException::class, IllegalArgumentException::class)
-    override fun loadUserByUsername(username: String): UserDetails {
+    fun loadUserByUsername(username: String): CurrentUser {
         logger.debug { "request: $username" }
 
         val user = try {
@@ -26,12 +26,15 @@ class UserDetailsServiceImpl(
         }
         logger.trace { "User is found: $user" }
 
-        return User
-            .withUsername(username)
-            .password("password") // FIXME
-            .authorities(listOf(SimpleGrantedAuthority(user.role.name)))
-            .build()
+        return CurrentUser(
+            id = checkNotNull(user.id),
+            enabled = user.status != DELETED,
+            accountNonLocked = user.status != BLOCKED,
+            authorities = listOf(SimpleGrantedAuthority(user.role.name))
+        )
     }
+
+
 
 }
 

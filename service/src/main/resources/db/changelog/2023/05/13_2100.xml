@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-13_2100"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-13_2100.xml">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="question_answer"/>
+
+                <indexExists tableName="question_answer" indexName="question_answer-session_id-idx"/>
+                <indexExists tableName="question_answer" indexName="question_answer-session_id-question-id-idx"/>
+
+                <indexExists tableName="check_list_question_answer"
+                             indexName="check_list_question_answer-session_id-idx"/>
+                <indexExists tableName="check_list_question_answer"
+                             indexName="check_list_question_answer-session_id-question-id-idx"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "question_answer"
+            (
+                "id"          UUID        NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+                "question_id" UUID        NOT NULL REFERENCES "question" ("id"),
+                "session_id"  UUID        NOT NULL REFERENCES "test_session" ("session_id"),
+                "answer"      JSON        NOT NULL,
+                "created_at"  TIMESTAMPTZ NOT NULL             DEFAULT NOW(),
+                UNIQUE ("question_id", "session_id")
+            );
+
+            CREATE INDEX "question_answer-session_id-idx" ON "question_answer" ("session_id");
+            CREATE INDEX "question_answer-session_id-question-id-idx" ON "question_answer" ("session_id", "question_id");
+
+            CREATE TABLE "check_list_question_answer"
+            (
+                "id"            UUID        NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+                "question_id"   UUID        NOT NULL REFERENCES "check_list_question" ("id"),
+                "session_id"    UUID        NOT NULL REFERENCES "test_session" ("session_id"),
+                "answer"        JSON        NOT NULL,
+                "respondent_id" UUID        NOT NULL REFERENCES "users" ("id"),
+                "created_at"    TIMESTAMPTZ NOT NULL             DEFAULT NOW(),
+                UNIQUE ("question_id", "session_id")
+            );
+
+            CREATE INDEX "check_list_question_answer-session_id-idx" ON "check_list_question_answer" ("session_id");
+            CREATE INDEX "check_list_question_answer-session_id-respondent_id-idx" ON "check_list_question_answer" ("session_id", "respondent_id");
+            CREATE INDEX "check_list_question_answer-session_id-question_id-user_id-idx" ON "check_list_question_answer" ("session_id", "question_id", "respondent_id");
+        </sql>
+    </changeSet>
+</databaseChangeLog>

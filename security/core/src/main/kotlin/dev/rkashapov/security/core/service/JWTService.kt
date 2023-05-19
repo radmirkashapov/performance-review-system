@@ -25,7 +25,7 @@ class JWTService : KLogging() {
         issuedAt: Instant,
         expiresAt: Instant,
         signingKey: SecretKey,
-        requestId: UUID? = null
+        requestId: String? = null
     ): String {
         return withLoggingContext(MdcKey.REQUEST_ID to requestId) {
             logger.info { "Generating token [subject=$subject, claims=$claims, expires=$expiresAt]" }
@@ -41,7 +41,7 @@ class JWTService : KLogging() {
         }
     }
 
-    fun validateAndParseToken(token: String, key: Key, requestId: UUID? = null): Claims {
+    fun validateAndParseToken(token: String, key: Key, requestId: String? = null): Claims {
         return withLoggingContext(MdcKey.REQUEST_ID to requestId) {
             logger.info { "Validating token..." }
 

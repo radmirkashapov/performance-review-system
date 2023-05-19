@@ -14,7 +14,7 @@ class AuthenticationOpenApiConfiguration(
         GroupedOpenApi.builder()
             .group("Authentication")
             .pathsToMatch(
-                "/api/v1/oauth/yandex/code-login-callback",
+                "/api/v1/oauth/**",
                 "/api/v1/refresh-token"
             )
             .addOpenApiCustomizer {

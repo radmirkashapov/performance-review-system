@@ -1,6 +1,5 @@
 package dev.rkashapov.security.auth.api.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import dev.rkashapov.base.logging.CustomHeaders
 import dev.rkashapov.base.logging.MdcKey
 import dev.rkashapov.base.logging.withLoggingContext
@@ -21,7 +20,6 @@ import java.util.*
 @RestController
 @RequestMapping("/api/v1/oauth")
 class OAuthController(
-    private val objectMapper: ObjectMapper,
     private val yandexOAuthService: YandexOAuthService
 ) : KLogging() {
 
@@ -29,7 +27,7 @@ class OAuthController(
     fun getOAuth2Link(
         @RequestParam(defaultValue = "YANDEX") provider: OAuthProvider,
         @RequestHeader(name = CustomHeaders.X_DEVICE_ID, required = true) deviceId: String,
-        @RequestHeader(name = CustomHeaders.X_REQUEST_ID, required = true) requestId: UUID,
+        @RequestHeader(name = CustomHeaders.X_REQUEST_ID, required = false) requestId: String?,
         request: HttpServletRequest
     ): ResponseEntity<OAuthLinkModel> {
         return withLoggingContext(MdcKey.REQUEST_ID to requestId, MdcKey.DEVICE_ID to deviceId) {

@@ -8,4 +8,6 @@
 
     <includeAll relativeToChangelogFile="true"
                 path="2023/05"/>
+
+    <include file="demo/demo.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
