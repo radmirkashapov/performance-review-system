@@ -15,7 +15,7 @@ class UserEntity2InfoConverter : Converter<UserEntity, UserInfo> {
             realName = source.realName,
             authorities = listOf(source.role).apply {
                 if (source.role == UserRole.ADMIN) {
-                    this.plus(UserRole.USER) // FIXME reformat
+                    this.plus(UserRole.USER) // FIXME rewrite
                 }
             }
         )

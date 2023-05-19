@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-13_1800"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-13_1800.xml">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="test"/>
+                <tableExists tableName="test_session"/>
+                <tableExists tableName="test_check_list"/>
+
+                <indexExists tableName="test_session" indexName="test_session-test_id-idx"/>
+                <indexExists tableName="test_session" indexName="test_session-respondent_id-idx"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "test"
+            (
+                "id"          UUID         NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+                "name"        VARCHAR(255) NOT NULL UNIQUE,
+                "description" TEXT         NOT NULL,
+                "created_at"  TIMESTAMPTZ  NOT NULL             DEFAULT NOW(),
+                "updated_at"  TIMESTAMPTZ  NOT NULL             DEFAULT NOW()
+            );
+
+            CREATE TABLE "test_session"
+            (
+                "session_id"    UUID         NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+                "test_id"       UUID         NOT NULL REFERENCES "test" ("id"),
+                "respondent_id" UUID         NOT NULL REFERENCES "users" ("id"),
+                "status"        VARCHAR(255) NOT NULL,
+                "created_at"    TIMESTAMPTZ  NOT NULL             DEFAULT NOW(),
+                "updated_at"    TIMESTAMPTZ  NOT NULL             DEFAULT NOW()
+            );
+
+            CREATE INDEX "test_session-test_id-idx" ON "test_session" ("test_id");
+            CREATE INDEX "test_session-respondent_id-idx" ON "test_session" ("respondent_id");
+
+            CREATE TABLE "test_check_list"
+            (
+                "test_id" UUID NOT NULL PRIMARY KEY REFERENCES "test" ("id")
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

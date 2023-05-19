@@ -4,15 +4,21 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      maximum-pool-size: 10
+
   liquibase:
-    change-log: classpath:db/changelog/master.xml
+    change-log: classpath*:db/changelog/master.xml
+    enabled: true
 
 auth-jwt:
   issuer: ${JWT_ISSUER}
   tokens:
     access:
       key: ${JWT_TOKENS_ACCESS_KEY}
-      ttl-in-seconds: 1200
+      ttl-in-seconds: ${JWT_TOKENS_ACCESS_TTL_IN_SEC:1200}
     refresh:
       key: ${JWT_TOKENS_REFRESH_KEY}
       ttl-in-seconds: 12000
@@ -28,3 +34,7 @@ logging:
     console: '%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger) - [%X] %msg%n'
   level:
     dev.rkashapov: trace
+
+demo:
+  data:
+    path: classpath*:/checklists/*

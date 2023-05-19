@@ -35,7 +35,7 @@ data class UserEntity(
 
     @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
-    var updatedAt: Instant? = null
+    var updatedAt: Instant = Instant.now()
 
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER

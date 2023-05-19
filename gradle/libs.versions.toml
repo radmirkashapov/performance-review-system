@@ -28,6 +28,7 @@ kotlin-user-agents = "0.2.2"
 commons-collections4 = "4.4"
 krypto = "4.0.0-rc5"
 hazelcast-all = "4.2.7"
+commons-csv = "1.10.0"
 
 [libraries]
 spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
@@ -76,6 +77,7 @@ jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt
 jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt-api" }
 kotlin-user-agents = { group = "ru.chermenin", name = "kotlin-user-agents", version.ref = "kotlin-user-agents" }
 krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto-jvm", version.ref = "krypto" }
+commons-csv = { group = "org.apache.commons", name = "commons-csv", version.ref = "commons-csv" }
 
 [bundles]
 spring-jpa = ["postgresql", "liquibase", "spring-boot-starter-data-jpa", "hibernate-utils", "hibernate-validator"]

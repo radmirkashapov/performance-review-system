@@ -17,6 +17,9 @@
             <option value="$PROJECT_DIR$/security/oauth" />
             <option value="$PROJECT_DIR$/security/user" />
             <option value="$PROJECT_DIR$/service" />
+            <option value="$PROJECT_DIR$/testing" />
+            <option value="$PROJECT_DIR$/testing/testing-api" />
+            <option value="$PROJECT_DIR$/testing/testing-spring" />
             <option value="$PROJECT_DIR$/yandex" />
             <option value="$PROJECT_DIR$/yandex/yandex-oauth" />
           </set>
