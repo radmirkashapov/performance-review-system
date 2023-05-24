@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-22_1000"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-22_1000.xml">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="matrix_mock"/>
+                <columnExists tableName="check_list_question_answer" columnName="skill_name"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE "matrix_mock"
+            (
+                "matrix_id"                   UUID NOT NULL PRIMARY KEY REFERENCES "test" ("id"),
+                "matrix_row_values_per_skill" JSON NOT NULL
+            );
+
+            ALTER TABLE "check_list_question_answer"
+                ADD COLUMN "skill_name" VARCHAR(255) NOT NULL DEFAULT '';
+
+            UPDATE "check_list_question_answer" "t1"
+            SET "skill_name" = "sclq"."skill_name" FROM "skill_check_list_question" as "sclq"
+            WHERE "t1"."question_id" = "sclq"."question_id";
+
+            ALTER TABLE "check_list_question_answer"
+                ADD CONSTRAINT "FK-check_list_question_answer-skill_name" FOREIGN KEY ("skill_name") REFERENCES "skill" ("name");
+
+            ALTER TABLE "check_list_question_answer"
+                ALTER COLUMN "skill_name" DROP DEFAULT;
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

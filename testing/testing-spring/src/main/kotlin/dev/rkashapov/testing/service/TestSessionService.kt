@@ -43,7 +43,7 @@ class TestSessionService(
                         }
 
                         DELAYED -> existedSession.copy(status = ACTIVE)
-                        FINISHED -> error("Illegal test session state")
+                        FINISHED, FINISHED_BY_USER -> error("Illegal test session state")
                     }
                 }
             } else {
@@ -71,8 +71,8 @@ class TestSessionService(
             withLoggingContext(MdcKey.TEST_ID to session.test.id) {
                 logger.info { "Finishing test session..." }
 
-                if (session.status != FINISHED) {
-                    testSessionRepository.saveAndFlush(session.copy(status = FINISHED))
+                if (session.status != FINISHED_BY_USER && session.status != FINISHED) {
+                    testSessionRepository.saveAndFlush(session.copy(status = FINISHED_BY_USER))
                 }
 
                 logger.info { "Test session finished" }

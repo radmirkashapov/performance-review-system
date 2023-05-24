@@ -11,7 +11,6 @@ class UserEntity2InfoConverter : Converter<UserEntity, UserInfo> {
     override fun convert(source: UserEntity): UserInfo {
         return UserInfo(
             id = checkNotNull(source.id),
-            avatarUrlTemplate = source.avatarUrl,
             realName = source.realName,
             authorities = listOf(source.role).apply {
                 if (source.role == UserRole.ADMIN) {

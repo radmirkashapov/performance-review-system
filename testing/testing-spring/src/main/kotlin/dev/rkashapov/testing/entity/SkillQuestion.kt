@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import java.io.Serializable
 import java.util.*
 
+// FIXME to ManyToMany
 @Entity
 @Table(name = "skill_question")
 data class SkillQuestion(

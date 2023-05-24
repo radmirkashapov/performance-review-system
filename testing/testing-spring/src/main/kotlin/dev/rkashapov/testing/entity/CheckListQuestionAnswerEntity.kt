@@ -22,6 +22,11 @@ data class CheckListQuestionAnswerEntity(
     @JoinColumn(name = "question_id")
     val question: CheckListQuestionEntity,
 
+    @field:NotNull
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "skill_name")
+    val skill: SkillEntity,
+
     @Type(value = JsonType::class)
     @Column(name = "answer", columnDefinition = "JSON")
     var answer: Set<TestCheckListQuestionOption>,

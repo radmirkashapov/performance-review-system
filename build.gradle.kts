@@ -63,6 +63,10 @@ subprojects {
                             "annotations" -> useVersion(rootProject.libs.versions.jetbrains.annotations.get())
                         }
 
+                        "org.jetbrains.kotlinx" -> when (requested.name) {
+                            "kotlinx-serialization-json" -> useVersion(rootProject.libs.versions.kotlinx.serialization.json.get())
+                        }
+
                         "com.fasterxml.jackson" -> when (requested.name) {
                             "jackson-bom" -> useVersion(rootProject.libs.versions.jacksonBom.get())
                         }
@@ -95,6 +99,7 @@ subprojects {
                     "-opt-in=io.kotest.common.ExperimentalKotest"
                 )
                 jvmTarget = libs.versions.jvm.get()
+                languageVersion = "1.9"
             }
         }
 

@@ -5,7 +5,6 @@ import java.util.*
 
 data class UserInfo(
     val id: UUID,
-    val avatarUrlTemplate: String,
     val realName: String,
     val authorities: List<UserRole> = emptyList()
 )

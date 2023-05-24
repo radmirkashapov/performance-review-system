@@ -59,7 +59,7 @@ class YandexOAuthCodeCallbackAuthenticationFilter(
         } ?: throw ResponseStatusException(UNAUTHORIZED, "Yandex callback processing failed")
 
         val authentication = UsernamePasswordAuthenticationToken(
-            user.email,
+            user.emailEncoded,
             null,
             user.role.let {
                 listOf(

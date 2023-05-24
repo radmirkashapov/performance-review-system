@@ -20,6 +20,11 @@ class HazelcastConfiguration {
                     .setInMemoryFormat(InMemoryFormat.OBJECT)
                     .setTimeToLiveSeconds(15 * 60)
             )
+            addMapConfig(
+                MapConfig(CollectionName.prsTestStatesMap)
+                    .setInMemoryFormat(InMemoryFormat.OBJECT)
+                    .setTimeToLiveSeconds(60 * 60 * 60 * 3)
+            )
             cpSubsystemConfig = CPSubsystemConfig().addLockConfig(FencedLockConfig("prs-lock"))
         }
 

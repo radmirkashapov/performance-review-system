@@ -1,6 +1,6 @@
 [versions]
 jvm = "17"
-kotlin = "1.8.10"
+kotlin = "1.8.21"
 atomicfu = "0.20.0"
 springdoc = "2.0.4"
 kotest-lib = "5.5.5"
@@ -29,6 +29,10 @@ commons-collections4 = "4.4"
 krypto = "4.0.0-rc5"
 hazelcast-all = "4.2.7"
 commons-csv = "1.10.0"
+openai-client = "3.2.3"
+ktor-client-apache = "2.3.0"
+kotlinx-serialization-json = "1.5.0"
+multik = "0.2.0"
 
 [libraries]
 spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
@@ -78,6 +82,10 @@ jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref =
 kotlin-user-agents = { group = "ru.chermenin", name = "kotlin-user-agents", version.ref = "kotlin-user-agents" }
 krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto-jvm", version.ref = "krypto" }
 commons-csv = { group = "org.apache.commons", name = "commons-csv", version.ref = "commons-csv" }
+openai-client = { group = "com.aallam.openai", name = "openai-client", version.ref = "openai-client" }
+ktor-engine = { group = "io.ktor", name = "ktor-client-apache", version.ref = "ktor-client-apache" }
+multik-core = { group = "org.jetbrains.kotlinx", name = "multik-core", version.ref = "multik" }
+multik-default = { group = "org.jetbrains.kotlinx", name = "multik-default", version.ref = "multik" }
 
 [bundles]
 spring-jpa = ["postgresql", "liquibase", "spring-boot-starter-data-jpa", "hibernate-utils", "hibernate-validator"]
@@ -108,14 +116,19 @@ openapi-client = [
     "jackson-kotlin",
     "jackson-datatype-jsr310"
 ]
+openai-client = [
+    "openai-client",
+    "ktor-engine"
+]
 openapi-client-tests = []
 jjwt = [
     "jjwt-impl", "jjwt-api", "jjwt-jackson"
 ]
+multik = ["multik-core", "multik-default"]
 
 [plugins]
 spring-deps = { id = "io.spring.dependency-management", version = "1.1.0" }
-spring-boot = { id = "org.springframework.boot", version = "3.0.5" }
+spring-boot = { id = "org.springframework.boot", version = "3.1.0" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }

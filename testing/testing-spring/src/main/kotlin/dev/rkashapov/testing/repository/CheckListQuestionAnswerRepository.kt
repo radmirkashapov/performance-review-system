@@ -13,4 +13,6 @@ interface CheckListQuestionAnswerRepository : JpaRepository<CheckListQuestionAns
         session: TestSessionEntity,
         question: CheckListQuestionEntity
     ): CheckListQuestionAnswerEntity?
+
+    fun findAllBySession(session: TestSessionEntity): List<CheckListQuestionAnswerEntity>
 }

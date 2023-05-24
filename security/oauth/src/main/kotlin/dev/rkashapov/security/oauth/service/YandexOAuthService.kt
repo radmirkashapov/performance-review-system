@@ -15,6 +15,7 @@ import dev.rkashapov.user.entity.UserEntity
 import dev.rkashapov.user.repository.UserRepository
 import io.jsonwebtoken.security.Keys
 import mu.KLogging
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClientException
@@ -31,7 +32,8 @@ class YandexOAuthService(
     private val userRepository: UserRepository,
     private val jwtService: JWTService,
     private val oAuthConfigurationProperties: OAuthConfigurationProperties,
-    private val hazelcastInstance: HazelcastInstance
+    private val hazelcastInstance: HazelcastInstance,
+    private val passwordEncoder: PasswordEncoder
 ) : KLogging() {
 
     private val oauthStates: IMap<String, OAuthStateModel> = hazelcastInstance.getMap(CollectionName.oauthStatesMap)
@@ -131,16 +133,14 @@ class YandexOAuthService(
 
         var userCreated = false
 
-        val user = userRepository.findFirstByEmail(loginInfo.defaultEmail)?.apply {
-            avatarUrl = loginInfo.avatarUrl
+        val user = userRepository.findFirstByEmailEncoded(passwordEncoder.encode(loginInfo.defaultEmail))?.apply {
             realName = loginInfo.realName
         } ?: run {
             userCreated = true
 
             UserEntity(
-                email = loginInfo.defaultEmail,
+                emailEncoded = passwordEncoder.encode(loginInfo.defaultEmail),
                 realName = loginInfo.realName,
-                avatarUrl = loginInfo.avatarUrl
             )
         }
 
