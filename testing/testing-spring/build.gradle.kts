@@ -5,6 +5,10 @@ plugins {
 
 dependencies {
     api(libs.bundles.spring.web)
+    api(libs.bundles.multik)
+
+    api(projects.base.caching)
     api(projects.security.user)
     api(projects.testing.testingApi)
+    api(projects.openAi)
 }

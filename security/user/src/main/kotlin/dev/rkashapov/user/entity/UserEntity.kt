@@ -6,7 +6,6 @@ import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
-import org.hibernate.validator.constraints.URL
 import java.time.Instant
 import java.util.*
 
@@ -19,15 +18,11 @@ data class UserEntity(
 
     @Column(name = "email", unique = true, nullable = false)
     @NotBlank
-    val email: String,
+    val emailEncoded: String,
 
     @NotBlank
     @Column(name = "real_name", nullable = false)
-    var realName: String,
-
-    @URL
-    @Column(name = "avatar_url", nullable = false)
-    var avatarUrl: String
+    var realName: String
 ) {
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp

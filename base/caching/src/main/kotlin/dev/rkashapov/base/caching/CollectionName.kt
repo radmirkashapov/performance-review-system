@@ -5,4 +5,5 @@ package dev.rkashapov.base.caching
  * */
 object CollectionName {
     const val oauthStatesMap = "oauthStates"
+    const val prsTestStatesMap = "prsTestStates"
 }

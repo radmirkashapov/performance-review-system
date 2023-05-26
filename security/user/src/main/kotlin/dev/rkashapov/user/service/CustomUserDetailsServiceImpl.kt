@@ -2,6 +2,7 @@ package dev.rkashapov.user.service
 
 import dev.rkashapov.base.model.UserStatus.BLOCKED
 import dev.rkashapov.base.model.UserStatus.DELETED
+import dev.rkashapov.security.core.exception.NotAuthorizedException
 import dev.rkashapov.security.core.model.CurrentUser
 import dev.rkashapov.user.repository.UserRepository
 import mu.KLogging
@@ -15,14 +16,15 @@ class CustomUserDetailsService(
     private val userRepository: UserRepository
 ) : KLogging() {
 
-    @Throws(UsernameNotFoundException::class, IllegalArgumentException::class)
+    @Throws(UsernameNotFoundException::class)
     fun loadUserByUsername(username: String): CurrentUser {
         logger.debug { "request: $username" }
 
         val user = try {
             userRepository.getReferenceById(UUID.fromString(username))
         } catch (e: IllegalArgumentException) {
-            checkNotNull(userRepository.findFirstByEmail(username))
+            userRepository.findFirstByEmailEncoded(username)
+                ?: throw NotAuthorizedException()
         }
         logger.trace { "User is found: $user" }
 

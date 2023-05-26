@@ -10,7 +10,14 @@ pluginManagement {
 }
 
 include(
+    ":base",
+    ":base:caching"
+)
+include(
     ":yandex:yandex-oauth"
+)
+include(
+    ":open-ai"
 )
 include(
     ":security:core",
@@ -21,10 +28,6 @@ include(
 include(
     ":testing:testing-api",
     ":testing:testing-spring"
-)
-include(
-    ":base",
-    ":base:caching"
 )
 include(
     ":service"

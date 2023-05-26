@@ -1,10 +1,9 @@
 package dev.rkashapov.testing.entity
 
 import dev.rkashapov.prs.testing.api.model.QuestionDifficulty
-import io.hypersistence.utils.hibernate.type.array.StringArrayType
+import io.hypersistence.utils.hibernate.type.array.ListArrayType
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import org.hibernate.annotations.Type
 import java.util.*
@@ -20,16 +19,23 @@ data class QuestionEntity(
     @Column(name = "question")
     val question: String,
 
-    @Type(value = StringArrayType::class)
+    @Type(value = ListArrayType::class)
     @Column(name = "answer_options", columnDefinition = "TEXT[]")
-    val answerOptions: MutableSet<String> = mutableSetOf(),
+    val answerOptions: List<String> = listOf(),
 
-    @field:NotEmpty
-    @Type(value = StringArrayType::class)
+    @Type(value = ListArrayType::class)
     @Column(name = "correct_answers", columnDefinition = "TEXT[]")
-    val correctAnswers: MutableSet<String> = mutableSetOf(),
+    val correctAnswers: List<String> = listOf(),
 
     @field:NotNull
     @Enumerated(EnumType.STRING)
     val difficulty: QuestionDifficulty
-)
+) {
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "skill_question",
+        joinColumns = [JoinColumn(name = "question_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "skill_name", referencedColumnName = "name")]
+    )
+    val skills: MutableSet<SkillEntity> = mutableSetOf()
+}

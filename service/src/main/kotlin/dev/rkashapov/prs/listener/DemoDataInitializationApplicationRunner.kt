@@ -1,7 +1,6 @@
-package dev.rkashapov.prs.configuration
+package dev.rkashapov.prs.listener
 
-import dev.rkashapov.base.logging.MdcKey.TEST_ID
-import dev.rkashapov.base.logging.MdcKey.TEST_SESSION_ID
+import dev.rkashapov.base.logging.MdcKey
 import dev.rkashapov.base.logging.withLoggingContext
 import dev.rkashapov.prs.testing.api.model.TestCheckListQuestionOption
 import dev.rkashapov.prs.testing.api.model.TestCheckListQuestionOptionRank
@@ -17,7 +16,6 @@ import org.apache.commons.csv.CSVFormat
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
-import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -25,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.io.InputStream
 import java.util.*
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(1)
 @Component(value = "demoDataInitializationApplicationRunner")
 class DemoDataInitializationApplicationRunner(
     private val checkListRepository: TestCheckListRepository,
@@ -46,7 +44,10 @@ class DemoDataInitializationApplicationRunner(
 
 
     override fun run(args: ApplicationArguments) {
+        logger.info { "Starting ${DemoDataInitializationApplicationRunner::class.simpleName}..." }
         addAllDemoData()
+
+        logger.info { "Finished ${DemoDataInitializationApplicationRunner::class.simpleName}" }
     }
 
     @Transactional
@@ -56,7 +57,7 @@ class DemoDataInitializationApplicationRunner(
         resources.forEach { resource ->
             val testId = requireNotNull(resource.filename).replace(CSV, "").let { UUID.fromString(it) }
 
-            withLoggingContext(TEST_ID to testId) {
+            withLoggingContext(MdcKey.TEST_ID to testId) {
                 val test = testRepository.findById(testId).orElseThrow()
 
                 logger.debug { "Found test: $test" }
@@ -65,7 +66,7 @@ class DemoDataInitializationApplicationRunner(
                     "Checklist for test not found"
                 }
 
-                withLoggingContext(TEST_SESSION_ID to test.checkList?.id) {
+                withLoggingContext(MdcKey.TEST_SESSION_ID to test.checkList?.id) {
                     val checklist = test.checkList!!
 
                     val skills = checklist.relatedSkills.map { it.name }
@@ -146,17 +147,16 @@ class DemoDataInitializationApplicationRunner(
 
             return@map SkillElement(
                 skill = skill,
-                checkListModel = UserRelatedTestCheckListModel
-                    .CheckListQuestion(
-                        id = UUID.fromString(lineWithHeader.get(HEADER_QUESTION_ID)),
-                        question = QUESTION_CONTENT_PREFIX.replace("%skill%", skill),
-                        options = options
-                    )
+                checkListModel = UserRelatedTestCheckListModel.CheckListQuestion(
+                    id = UUID.fromString(lineWithHeader.get(HEADER_QUESTION_ID)),
+                    question = QUESTION_CONTENT_PREFIX.replace("%skill%", skill),
+                    options = options
+                )
             )
         }
 }
 
-private class SkillElement(
+class SkillElement(
     val skill: String,
     val checkListModel: UserRelatedTestCheckListModel.CheckListQuestion
 )

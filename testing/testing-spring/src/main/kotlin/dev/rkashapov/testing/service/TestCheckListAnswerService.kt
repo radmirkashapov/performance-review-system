@@ -8,13 +8,11 @@ import dev.rkashapov.prs.testing.api.model.TestCheckListQuestionOptionRank
 import dev.rkashapov.prs.testing.api.model.TestSessionStatus
 import dev.rkashapov.testing.entity.CheckListQuestionAnswerEntity
 import dev.rkashapov.testing.entity.TestSessionEntity
-import dev.rkashapov.testing.repository.CheckListQuestionAnswerRepository
-import dev.rkashapov.testing.repository.CheckListQuestionRepository
-import dev.rkashapov.testing.repository.TestRepository
-import dev.rkashapov.testing.repository.TestSessionRepository
+import dev.rkashapov.testing.repository.*
 import dev.rkashapov.user.repository.UserRepository
 import mu.KLogging
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
@@ -22,12 +20,15 @@ class TestCheckListAnswerService(
     private val testRepository: TestRepository,
     private val testSessionRepository: TestSessionRepository,
     private val userRepository: UserRepository,
+    private val skillRepository: SkillRepository,
     private val checkListQuestionAnswerRepository: CheckListQuestionAnswerRepository,
     private val checkListQuestionRepository: CheckListQuestionRepository
 ) : KLogging() {
 
+    @Transactional
     fun doAnswer(
         respondentId: UUID,
+        skillName: String,
         testId: UUID,
         sessionId: UUID,
         questionId: UUID,
@@ -39,6 +40,9 @@ class TestCheckListAnswerService(
             TEST_SESSION_ID to sessionId,
             TEST_CHECKLIST_QUESTION_ID to questionId
         ) {
+
+            logger.info { "Received answer to checklist" }
+
             val respondent = userRepository.getReferenceById(respondentId)
 
             logger.debug { "Found user: $respondentId" }
@@ -69,11 +73,14 @@ class TestCheckListAnswerService(
                             } ?: run {
                             logger.info { "Respondent hasn't answered to question yet. Saving answer..." }
 
+                            val skill = skillRepository.getReferenceById(skillName)
+
                             CheckListQuestionAnswerEntity(
                                 question = question,
                                 answer = answer,
                                 respondent = respondent,
-                                session = activeTestSession
+                                session = activeTestSession,
+                                skill = skill
                             )
                         }
 

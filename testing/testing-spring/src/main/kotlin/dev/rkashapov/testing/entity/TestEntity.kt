@@ -34,4 +34,8 @@ data class TestEntity(
     @OneToOne(cascade = [CascadeType.ALL])
     @PrimaryKeyJoinColumn
     var checkList: TestCheckListEntity? = null
+
+    @OneToOne(cascade = [CascadeType.ALL])
+    @PrimaryKeyJoinColumn
+    var matrix: TopicMatrixConnectivityMock? = null
 }

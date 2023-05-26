@@ -11,6 +11,10 @@ data class TestCheckListDoAnswerRequest(
     val sessionId: UUID,
 
     @field:NotNull
+    @field:JsonProperty("skillName")
+    val skillName: String,
+
+    @field:NotNull
     @field:JsonProperty("questionId")
     val questionId: UUID,
 

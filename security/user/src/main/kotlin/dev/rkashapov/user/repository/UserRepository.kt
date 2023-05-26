@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface UserRepository : JpaRepository<UserEntity, UUID> {
-    fun findFirstByEmail(email: String): UserEntity?
+    fun findFirstByEmailEncoded(email: String): UserEntity?
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2023-05-24_1200"
+               author="Radmir Kashapov"
+               logicalFilePath="2023-05-24_1200.xml">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="users"/>
+            <columnExists tableName="users" columnName="avatar_url"/>
+        </preConditions>
+        <sql>
+            ALTER TABLE "users"
+            DROP
+            COLUMN "avatar_url";
+        </sql>
+    </changeSet>
+</databaseChangeLog>

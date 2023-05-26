@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
-@SpringBootApplication(scanBasePackages = ["dev.rkashapov.*", "ru.ya.*"])
+@SpringBootApplication(scanBasePackages = ["dev.rkashapov.*", "ru.ya.*", "com.openai.*"])
 @EnableScheduling
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = ["dev.rkashapov.*"])
 @EntityScan(basePackages = ["dev.rkashapov.*"])
-@ConfigurationPropertiesScan(basePackages = ["dev.rkashapov.*", "ru.ya.*"])
+@ConfigurationPropertiesScan(basePackages = ["dev.rkashapov.*", "ru.ya.*", "com.openai.*"])
 class PrsApplication
 
 @Suppress("SpreadOperator")

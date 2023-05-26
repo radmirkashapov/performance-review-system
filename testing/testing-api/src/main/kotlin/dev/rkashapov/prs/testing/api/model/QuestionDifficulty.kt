@@ -14,4 +14,14 @@ enum class QuestionDifficulty(val difficulty: Int) {
     LEAD_MINUS(difficulty = 10),
     LEAD(difficulty = 11),
     LEAD_PLUS(difficulty = 12);
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun previousOrCurrentIfNotExists(): QuestionDifficulty {
+        return QuestionDifficulty.entries.find { it.difficulty == this.difficulty - 1 } ?: this
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun nextOrCurrentIfNotExists(): QuestionDifficulty {
+        return QuestionDifficulty.entries.find { it.difficulty == this.difficulty + 1 } ?: this
+    }
 }

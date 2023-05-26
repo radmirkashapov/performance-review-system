@@ -6,5 +6,7 @@ plugins {
 dependencies {
     api(libs.krypto)
     api(libs.spring.boot.starter)
+
     api(libs.bundles.logging)
+    api(libs.bundles.kotlinx.coroutines)
 }

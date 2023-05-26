@@ -8,6 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface TestSessionRepository : JpaRepository<TestSessionEntity, UUID> {
+
+    fun findAllByRespondentAndStatusOrderByUpdatedAtDesc(
+        respondent: UserEntity,
+        status: TestSessionStatus
+    ): List<TestSessionEntity>
+
     fun findFirstByRespondentAndTestAndStatusIn(
         respondent: UserEntity,
         test: TestEntity,
