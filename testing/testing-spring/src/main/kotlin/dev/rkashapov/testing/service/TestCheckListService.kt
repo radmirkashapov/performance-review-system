@@ -49,7 +49,7 @@ class TestCheckListService(
             val checkListAnswers = checkListAnswerRepository.findAllBySession(session).map { it.skill.name }.toSet()
             val checkListSkills = checkList.relatedSkills.map { it.name }.toSet()
 
-            if (checkListSkills.intersect(checkListSkills).size == checkListSkills.size) {
+            if (checkListSkills.intersect(checkListAnswers).size == checkListSkills.size) {
                 return UserRelatedTestCheckListSkipModel()
             }
 

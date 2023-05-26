@@ -2,8 +2,6 @@ package dev.rkashapov.testing.function
 
 import dev.rkashapov.base.logging.MdcKey.*
 import dev.rkashapov.base.logging.withLoggingContext
-import dev.rkashapov.prs.testing.api.model.QuestionAnswerType
-import dev.rkashapov.prs.testing.api.model.QuestionDifficulty
 import dev.rkashapov.testing.entity.QuestionAnswerEntity
 import mu.KLogging
 import org.springframework.stereotype.Service
@@ -33,21 +31,7 @@ class AverageRanksVectorSupplier : BiFunction<Set<String>, List<QuestionAnswerEn
                     return@map 0.0
                 }
 
-                skillAnswers.sumOf { answer ->
-                    val nrmKoef = answer.question.difficulty.difficulty.toDouble() / QuestionDifficulty.LEAD_PLUS.difficulty
-                    if (answer.answer.getOrDefault(QuestionAnswerType.ANSWER_BY_PROBLEM, emptyList()).isNotEmpty()) {
-                        1.0 * nrmKoef
-                    } else {
-                        val userAnswer = answer.answer.getValue(QuestionAnswerType.ANSWER_BY_QUESTION)
-                        answer.question.correctAnswers.size.takeIf { it != 0 }?.let {
-                            (userAnswer.intersect(answer.question.correctAnswers).size.toDouble() / answer.question.correctAnswers.size) * nrmKoef
-                        } ?: run {
-                            if (answer.question.correctAnswers.isEmpty() && userAnswer.isEmpty()) {
-                                1.0 * nrmKoef
-                            } else 0.0
-                        }
-                    }
-                } / skillAnswers.sumOf { answer -> answer.question.difficulty.difficulty.toDouble() / QuestionDifficulty.LEAD_PLUS.difficulty }
+                skillAnswers.sumOf { answer -> answer.rank() * answer.nrmCoefficient() } / skillAnswers.sumOf { answer -> answer.nrmCoefficient() }
             }.also {
                 logger.debug { "Calculated average ranks: $it" }
             }

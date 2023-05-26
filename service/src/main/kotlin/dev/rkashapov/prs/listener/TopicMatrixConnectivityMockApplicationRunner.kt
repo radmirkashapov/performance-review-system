@@ -1,6 +1,7 @@
 package dev.rkashapov.prs.listener
 
 import com.openai.client.api.client.MatrixOfTopicConnectivityClient
+import dev.rkashapov.base.retry.retryRunBlocking
 import dev.rkashapov.testing.entity.TopicMatrixConnectivityMock
 import dev.rkashapov.testing.repository.TestCheckListRepository
 import dev.rkashapov.testing.repository.TestRepository
@@ -43,12 +44,24 @@ class TopicMatrixConnectivityMockApplicationRunner(
                     return@mapNotNull null
                 }
 
-                val skills = checkNotNull(testCheckListRepository.findByTest(test)).relatedSkills.map { it.name }.sorted()
+                val skills =
+                    checkNotNull(testCheckListRepository.findByTest(test)).relatedSkills.map { it.name }.sorted()
 
-                val computedMatrix = runBlocking {
-                    matrixOfTopicConnectivityClient
-                        .getMatrix(testName = test.name, sortedSkills = skills)
-                }
+                val computedMatrix =
+                    retryRunBlocking(maxAttempts = 10, delayInSeconds = 1, nearActionWithDelay = false) {
+                        val result = runBlocking {
+                            matrixOfTopicConnectivityClient
+                                .getMatrix(testName = test.name, sortedSkills = skills)
+                        }
+
+                        require(
+                            result.size == skills.size
+                                    && result.first().size == result.last().size
+                                    && result.first().size == skills.size
+                        ) { "Invalid generated matrix shapes" }
+
+                        return@retryRunBlocking result
+                    }
 
                 TopicMatrixConnectivityMock(
                     matrixId = checkNotNull(test.id),

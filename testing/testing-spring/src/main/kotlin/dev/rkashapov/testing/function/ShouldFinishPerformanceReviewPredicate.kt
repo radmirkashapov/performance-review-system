@@ -31,6 +31,7 @@ class ShouldFinishPerformanceReviewPredicate : BiPredicate<Set<String>, List<Que
 
             val answeredSkills = answers.map { it.question.skills.first().name }.toSet()
 
+
             if(selectedSkills.intersect(answeredSkills).size != selectedSkills.size) {
                 return@withLoggingContext false
             }
