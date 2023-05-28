@@ -142,4 +142,16 @@ subprojects {
 //			"kapt"(libs.spring.context.indexer)
         }
     }
+
+    tasks.withType<Jar> {
+        val hierarchicalArchiveName =
+            generateSequence(project) { it.parent }
+                .map { it.name }
+                .asIterable()
+                .reversed()
+                .joinToString("-")
+
+        archiveBaseName.set(hierarchicalArchiveName)
+    }
+
 }

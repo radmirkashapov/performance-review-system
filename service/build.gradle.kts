@@ -35,7 +35,12 @@ configure<SpringBootExtension> {
 
 tasks {
     bootJar {
+        enabled = true
         archiveClassifier.set("all")
         archiveVersion.set("")
+    }
+
+    jar {
+        enabled = false
     }
 }
