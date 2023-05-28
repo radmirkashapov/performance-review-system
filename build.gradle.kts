@@ -75,8 +75,12 @@ subprojects {
                             "jaxb-api" -> useVersion(rootProject.libs.versions.jaxb.api.get())
                         }
 
-                        "org.apache.commons" -> when(requested.name) {
+                        "org.apache.commons" -> when (requested.name) {
                             "commons-collections4" -> useVersion(rootProject.libs.versions.commons.collections4.get())
+                        }
+
+                        "com.squareup.okio" -> when (requested.name) {
+                            "okio" -> useVersion(rootProject.libs.versions.okio.get())
                         }
                     }
                 }

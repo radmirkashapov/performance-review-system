@@ -30,9 +30,10 @@ krypto = "4.0.0-rc5"
 hazelcast-all = "4.2.7"
 commons-csv = "1.10.0"
 openai-client = "3.2.3"
-ktor-client-apache = "2.3.0"
+ktor-client-okhttp = "2.3.0"
 kotlinx-serialization-json = "1.5.0"
 multik = "0.2.0"
+okio = "3.3.0"
 
 [libraries]
 spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
@@ -83,7 +84,7 @@ kotlin-user-agents = { group = "ru.chermenin", name = "kotlin-user-agents", vers
 krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto-jvm", version.ref = "krypto" }
 commons-csv = { group = "org.apache.commons", name = "commons-csv", version.ref = "commons-csv" }
 openai-client = { group = "com.aallam.openai", name = "openai-client", version.ref = "openai-client" }
-ktor-engine = { group = "io.ktor", name = "ktor-client-apache", version.ref = "ktor-client-apache" }
+ktor-engine = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor-client-okhttp" }
 multik-core = { group = "org.jetbrains.kotlinx", name = "multik-core", version.ref = "multik" }
 multik-default = { group = "org.jetbrains.kotlinx", name = "multik-default", version.ref = "multik" }
 
