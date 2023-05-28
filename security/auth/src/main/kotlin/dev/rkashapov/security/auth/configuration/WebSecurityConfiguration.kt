@@ -2,6 +2,7 @@ package dev.rkashapov.security.auth.configuration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.rkashapov.security.auth.filter.JWTAuthorizationFilter
+import dev.rkashapov.security.auth.filter.SpaWebFilter
 import dev.rkashapov.security.auth.filter.YandexOAuthCodeCallbackAuthenticationFilter
 import dev.rkashapov.security.auth.handler.YandexOAuthCodeCallbackAuthenticationFailureHandler
 import dev.rkashapov.security.auth.handler.YandexOAuthCodeCallbackAuthenticationSuccessHandler
@@ -22,6 +23,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +34,7 @@ class WebSecurityConfiguration(
     private val objectMapper: ObjectMapper,
     private val yandexOAuthService: YandexOAuthService,
     private val authJWTService: AuthJWTService,
+    private val spaWebFilter: SpaWebFilter,
     private val authenticationConfiguration: AuthenticationConfiguration,
     private val yandexOAuthCodeCallbackAuthenticationSuccessHandler: YandexOAuthCodeCallbackAuthenticationSuccessHandler,
     private val yandexOAuthCodeCallbackAuthenticationFailureHandler: YandexOAuthCodeCallbackAuthenticationFailureHandler
@@ -69,8 +72,12 @@ class WebSecurityConfiguration(
                 "/v3/api-docs", "/v3/api-docs/**",
                 "/v3/api-docs.yaml", "/v3/api-docs.yaml/**"
             ).permitAll()
+            .requestMatchers(
+                "/", "/index.html", "*favicon.ico", "*.css", "*.js", "/assets/img/**"
+            ).permitAll()
             .anyRequest().authenticated()
             .and()
+            .addFilterAt(spaWebFilter, BasicAuthenticationFilter::class.java)
             .addFilterBefore(
                 yandexOAuthCodeCallbackAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter::class.java

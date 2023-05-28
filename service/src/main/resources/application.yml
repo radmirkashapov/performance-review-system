@@ -41,10 +41,13 @@ demo:
 
 open-ai:
   token: ${OPEN_AI_TOKEN}
-  logging-level: All
+  logging-level: Info
   model-id: gpt-3.5-turbo
   temperature-matrix: 0.2
   temperature-questions: 1.2
 
 prs:
   max_questions_count: ${PRS_MAX_QUESTIONS_COUNT:30}
+
+server:
+  port: ${PORT:8080}

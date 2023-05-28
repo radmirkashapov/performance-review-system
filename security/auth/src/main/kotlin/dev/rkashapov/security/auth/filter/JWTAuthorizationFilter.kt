@@ -23,6 +23,7 @@ class JWTAuthorizationFilter(
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         return request.requestURI.startsWith("/api/v1/refresh-token") ||
                 (request.requestURI.startsWith(WebSecurityConfiguration.DEFAULT_LOGIN_URL) && request.method == HttpMethod.POST.name())
+                || !request.requestURI.startsWith("/api")
     }
 
     @Throws(NotAuthorizedException::class, NoAuthenticationFoundException::class)
