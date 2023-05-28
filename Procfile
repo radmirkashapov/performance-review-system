@@ -1,1 +1,1 @@
-web: java -jar service/build/libs/service-plain.jar --server.port=$PORT
+web: java -jar service/build/libs/prs-service-all.jar --server.port=$PORT
