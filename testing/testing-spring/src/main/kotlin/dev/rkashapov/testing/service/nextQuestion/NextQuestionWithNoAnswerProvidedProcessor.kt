@@ -51,7 +51,7 @@ class NextQuestionWithNoAnswerProvidedProcessor(
             val answeredQuestions = questionAnswerRepository.findAllBySessionOrderByCreatedAt(session)
 
             return nextQuestionAnswerProcessor
-                .getNextQuestion(session, state, answeredQuestions.last(), answeredQuestions)
+                .getNextQuestion(session, state, answeredQuestions.last(), answeredQuestions.toSet())
                 .also {
                     logger.debug { "NextQuestionWithNoAnswerProvidedProcessor answer: $it" }
                 }

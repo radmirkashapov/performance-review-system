@@ -69,27 +69,31 @@ class NextQuestionAnswerProcessor(
             val alreadyAnsweredQuestions = questionAnswerRepository
                 .findAllBySessionOrderByCreatedAt(session)
 
-            require(!alreadyAnsweredQuestions.any { it.question.id == answer.questionId }) { "Already answered" }
+            val newAnswer = if (alreadyAnsweredQuestions.any { it.question.id == answer.questionId }) {
+                logger.info { "Already answered" }
+                alreadyAnsweredQuestions.last()
+            } else {
+                val question = questionRepository.getReferenceById(answer.questionId)
+
+                questionAnswerRepository.save(
+                    QuestionAnswerEntity(
+                        question = question,
+                        answer = answer.answer,
+                        session = session
+                    )
+                ).also { newAnswer ->
+                    logger.debug { "Saved question answer: $newAnswer" }
+                }
+            }
 
             val alreadyAnsweredQuestionsIds = alreadyAnsweredQuestions.mapNotNull { it.question.id }
 
             logger.debug { "alreadyAnsweredQuestionsIds: $alreadyAnsweredQuestionsIds" }
 
-            val question = questionRepository.getReferenceById(answer.questionId)
-
-            val newAnswer = questionAnswerRepository.save(
-                QuestionAnswerEntity(
-                    question = question,
-                    answer = answer.answer,
-                    session = session
-                )
-            )
-
-            logger.debug { "Saved question answer: $newAnswer" }
 
             val state = prsTestStates.getValue(sessionId)
 
-            getNextQuestion(session, state, newAnswer, alreadyAnsweredQuestions).also {
+            getNextQuestion(session, state, newAnswer, alreadyAnsweredQuestions.toSet()).also {
                 logger.debug { "NextQuestionAnswerProcessor answer: $it" }
             }
         }
@@ -100,7 +104,7 @@ class NextQuestionAnswerProcessor(
         session: TestSessionEntity,
         state: PRSStateTestHZModel,
         newAnswer: QuestionAnswerEntity,
-        alreadyAnsweredQuestions: List<QuestionAnswerEntity>
+        alreadyAnsweredQuestions: Set<QuestionAnswerEntity>
     ): NextQuestion {
         return withLoggingContext(
             TEST_SESSION_ID to session.sessionId,
@@ -110,13 +114,15 @@ class NextQuestionAnswerProcessor(
         ) {
             logger.info { "Getting next question..." }
 
-            val nextDifficulty = nextDifficultySupplier.nextDifficulty(answer = newAnswer)
-
             val respondentAnswers = alreadyAnsweredQuestions.plus(newAnswer)
+            val nextDifficulty = nextDifficultySupplier.nextDifficulty(answer = respondentAnswers.last())
+
+            // fixme
+            val respondentAnswersAsList = respondentAnswers.toList()
 
             if (shouldFinishPerformanceReviewPredicate.test(
                     selectedSkills = state.checkListAnswersPerSkill.keys,
-                    answers = respondentAnswers
+                    answers = respondentAnswersAsList
                 )
             ) {
                 logger.info { "Finishing test. nextQuestionDifficulty: $nextDifficulty" }
@@ -128,7 +134,7 @@ class NextQuestionAnswerProcessor(
             // topic == skill
             val nextTopic =
                 nextTopicSupplier
-                    .nextTopic(state = state, answers = respondentAnswers)
+                    .nextTopic(state = state, answers = respondentAnswersAsList)
 
 
             nextQuestionSupplier.getNextQuestion(

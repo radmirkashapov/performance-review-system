@@ -50,4 +50,4 @@ prs:
   max_questions_count: ${PRS_MAX_QUESTIONS_COUNT:30}
 
 server:
-  port: ${PORT}
+  port: ${PORT:8080}
